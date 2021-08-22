@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 import type { APIGatewayProxyResult } from 'aws-lambda';
 
-import products from './products.mock.json';
+import products from '../products.mock.json';
 
 export const getProducts = async (): Promise<APIGatewayProxyResult> => {
   return {

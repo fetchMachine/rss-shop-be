@@ -2,7 +2,7 @@ import type { APIGatewayProxyResult } from 'aws-lambda';
 
 import { getProducts } from './getProducts';
 
-import products from './products.mock.json';
+import products from '../products.mock.json';
 
 describe('getProducts', () => {
   it('getProducts return list of all products', async () => {
