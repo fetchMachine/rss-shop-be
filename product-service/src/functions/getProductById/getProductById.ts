@@ -1,20 +1,20 @@
 import 'source-map-support/register';
 import type { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 
-import { ERROS } from './errorMsgs';
+import { COMMON_HEADERS } from '@functions/constants';
+import products from '@functions/products.mock.json';
 
-import products from '../products.mock.json';
+import { ERROS } from './errorMsgs';
 
 export const getProductById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const { productId = '' } = event.pathParameters;
+  const productIdStringed = productId?.toString();
 
-  const id = parseInt(productId, 10);
-
-  if (!id || Number.isNaN(id) || id.toString() !== productId) {
+  if (!productIdStringed) {
     return { statusCode: 400, body: JSON.stringify({ message: ERROS.INVALID_ID }) };
   }
 
-  const product = products.find((product) => product.id === id);
+  const product = products.find((product) => product.id === productIdStringed);
 
   if (!product) {
     return { statusCode: 404, body: JSON.stringify({ message: ERROS.PRODUCT_NOT_FOUNDED }) };
@@ -23,6 +23,7 @@ export const getProductById = async (event: APIGatewayProxyEvent): Promise<APIGa
 
   return {
     statusCode: 200,
+    headers: { ...COMMON_HEADERS },
     body: JSON.stringify({
       items: [product],
     }),

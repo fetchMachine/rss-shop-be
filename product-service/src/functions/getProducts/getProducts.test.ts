@@ -2,7 +2,9 @@ import type { APIGatewayProxyResult } from 'aws-lambda';
 
 import { getProducts } from './getProducts';
 
-import products from '../products.mock.json';
+jest.mock('@functions/products.mock.json', () => ({
+  default: [{ id: 'abc' }, { id: 'bca' }],
+}));
 
 describe('getProducts', () => {
   it('getProducts return list of all products', async () => {
@@ -10,10 +12,10 @@ describe('getProducts', () => {
 
     const expectedResult: APIGatewayProxyResult = {
       statusCode: 200,
-      body: JSON.stringify({ items: products }),
+      body: JSON.stringify({ items: [{ id: 'abc' }, { id: 'bca' }] }),
     };
 
 
-    expect(result).toEqual(expectedResult);
+    expect(result).toMatchObject(expectedResult);
   });
 });

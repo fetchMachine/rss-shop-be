@@ -3,36 +3,36 @@ import type { APIGatewayProxyResult } from 'aws-lambda';
 import { ERROS } from './errorMsgs';
 import { getProductById } from './getProductById';
 
-jest.mock('../products.mock.json', () => ({
-  default: [{ id: 1, title: 'some_title' }]
+jest.mock('@functions/products.mock.json', () => ({
+  default: [{ id: '1', title: 'some_title' }],
 }));
 
-describe('getProducts', () => {
+describe('getProductById', () => {
   it('getProductById return product by id', async () => {
     // @ts-ignore
     const result = await getProductById({ pathParameters: { productId: '1' } });
 
     const expectedResult: APIGatewayProxyResult = {
       statusCode: 200,
-      body: JSON.stringify({ items: [{ id: 1, title: 'some_title' }] }),
+      body: JSON.stringify({ items: [{ id: '1', title: 'some_title' }] }),
     };
 
-    expect(result).toEqual(expectedResult);
+    expect(result).toMatchObject(expectedResult);
   });
 
-  it('getProductById if get invalid id return 400', async () => {
+  it('getProductById return 400 when get invalid id', async () => {
     // @ts-ignore
-    const result = await getProductById({ pathParameters: { productId: '1a' } });
+    const result = await getProductById({ pathParameters: { productId: '' } });
 
     const expectedResult: APIGatewayProxyResult = {
       statusCode: 400,
       body: JSON.stringify({ message: ERROS.INVALID_ID }),
     };
 
-    expect(result).toEqual(expectedResult);
+    expect(result).toMatchObject(expectedResult);
   });
 
-  it('getProductById return 404 if product not founded', async () => {
+  it('getProductById return 404 when product not founded', async () => {
     // @ts-ignore
     const result = await getProductById({ pathParameters: { productId: '2' } });
 
@@ -41,6 +41,6 @@ describe('getProducts', () => {
       body: JSON.stringify({ message: ERROS.PRODUCT_NOT_FOUNDED }),
     };
 
-    expect(result).toEqual(expectedResult);
+    expect(result).toMatchObject(expectedResult);
   });
 });
