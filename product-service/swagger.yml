@@ -64,6 +64,8 @@ definitions:
       price:
         type: number
         format: double
+      img:
+        type: string
     xml:
       name: Order
   ProductResponse:
