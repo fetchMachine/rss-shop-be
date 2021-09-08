@@ -24,15 +24,11 @@ export class ProductsProvider {
     });
   }
 
-  private async makeQuery<T>(query: string | {
-    name?: string;
-    text: string;
-    values?: unknown[];
-  }): Promise<T[]> {
+  private async makeQuery<T>(query: string, params?: (string | number)[]): Promise<T[]> {
     try {
       await this.client.connect();
 
-      const { rows } = await this.client.query<T>(query);
+      const { rows } = await this.client.query<T>(query, params);
 
       return rows;
     } finally {
@@ -41,18 +37,18 @@ export class ProductsProvider {
   }
 
   public async getAll (): Promise<Product[]> {
-    const GET_ALL_QUERY = `SELECT * FROM products p LEFT JOIN stocks s ON p.id = s.product_id`;
+    const query = 'SELECT * FROM products p LEFT JOIN stocks s ON p.id = s.product_id';
 
-    return this.makeQuery(GET_ALL_QUERY);
+    return this.makeQuery(query);
   }
 
   public async getById (id: string): Promise<Product[]> {
-    const GET_BY_ID_QUERY = `SELECT * FROM products p LEFT JOIN stocks s ON p.id = s.product_id where p.id = '${id}'`;
+    const query = 'SELECT * FROM products p LEFT JOIN stocks s ON p.id = s.product_id where p.id = $1';
 
-    return this.makeQuery(GET_BY_ID_QUERY);
+    return this.makeQuery(query, [id]);
   }
 
-  public async addProduct (productToCreate: NewProduct): Promise<Product[]> {
+  public async addProduct (productToCreate: NewProduct): Promise<{ id: string }> {
     await this.client.connect();
     try {
       const { description, price, title, count } = productToCreate;
@@ -70,7 +66,7 @@ export class ProductsProvider {
 
       await this.client.query('COMMIT');
 
-      return rows;
+      return rows[0];
     } catch (e) {
       await this.client.query('ROLLBACK');
       throw e
