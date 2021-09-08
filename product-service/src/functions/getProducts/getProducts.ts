@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 import type { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 
-import { logLambdaParams } from '@libs/logLambdaParams';
+import { logLambdaParams, logLambdaError } from '@libs/loggers';
 import { ProductsProvider } from '@providers/products';
 import { COMMON_HEADERS, ERROS, STATUS_CODES } from '@functions/constants';
 
@@ -21,7 +21,7 @@ export const getProducts = async (event: APIGatewayProxyEvent): Promise<APIGatew
       }),
     };
   } catch(e) {
-    console.log(e);
+    logLambdaError('getProducts', e);
     return { statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR, body: JSON.stringify({ message: ERROS.UNKNOWN }) }
   }
 }

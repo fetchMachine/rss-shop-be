@@ -1,8 +1,8 @@
 export interface Product {
   id: string;
   title: string;
-  desciption?: string;
+  description: string;
   price: number;
 }
 
-export type NewProduct = Omit<Product, 'id'>;
+export type NewProduct = Omit<Product, 'id'> & { count: number };

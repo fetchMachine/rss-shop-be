@@ -24,7 +24,11 @@ export class ProductsProvider {
     });
   }
 
-  private async makeQuery<T>(query: string): Promise<T[]> {
+  private async makeQuery<T>(query: string | {
+    name?: string;
+    text: string;
+    values?: unknown[];
+  }): Promise<T[]> {
     try {
       await this.client.connect();
 
@@ -43,24 +47,35 @@ export class ProductsProvider {
   }
 
   public async getById (id: string): Promise<Product[]> {
-    const GET_BY_ID_QUERY = `SELECT * FROM products p LEFT JOIN stocks s ON p.id = s.product_id where p.id = ${id}`;
+    const GET_BY_ID_QUERY = `SELECT * FROM products p LEFT JOIN stocks s ON p.id = s.product_id where p.id = '${id}'`;
 
     return this.makeQuery(GET_BY_ID_QUERY);
   }
 
   public async addProduct (productToCreate: NewProduct): Promise<Product[]> {
-    const { desciption, price, title } = productToCreate;
+    await this.client.connect();
+    try {
+      const { description, price, title, count } = productToCreate;
 
-    const ADD_PRODUCT_QUERY = `INSERT INTO products (title, description, price) values ('${desciption}', '${price}', '${title}')`;
+      await this.client.query('BEGIN');
 
-    const product = await this.makeQuery<Product>(ADD_PRODUCT_QUERY);
+      const queryProduct = 'INSERT INTO products (title, description, price) VALUES ($1, $2, $3) RETURNING id';
+      const { rows } = await this.client.query<Product>(queryProduct, [title, description, price]);
 
-    const { id } = product[0];
+      const { id } = rows[0];
 
-    const ADD_PRODUCT_TO_STOCK_QUERY = `INSERT INTO stocks (product_id, count) values ('${id}', floor(random() * 10 + 1)::int)`;
+      const queryStock = 'INSERT INTO stocks (product_id, count) VALUES ($1, $2)';
 
-    await this.makeQuery(ADD_PRODUCT_TO_STOCK_QUERY);
+      await this.client.query(queryStock, [id, count]);
 
-    return product;
+      await this.client.query('COMMIT');
+
+      return rows;
+    } catch (e) {
+      await this.client.query('ROLLBACK');
+      throw e
+    } finally {
+      await this.client.end();
+    }
   }
 }

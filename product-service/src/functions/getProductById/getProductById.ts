@@ -2,7 +2,7 @@ import 'source-map-support/register';
 import * as yup from 'yup';
 import type { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 
-import { logLambdaParams } from '@libs/logLambdaParams';
+import { logLambdaParams, logLambdaError } from '@libs/loggers';
 import { COMMON_HEADERS, ERROS, STATUS_CODES } from '@functions/constants';
 import { ProductsProvider } from '@providers/products';
 
@@ -34,7 +34,7 @@ export const getProductById = async (event: APIGatewayProxyEvent): Promise<APIGa
       }),
     };
   } catch (e) {
-    console.log(e);
+    logLambdaError('getProductById', e);
     return { statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR, body: JSON.stringify({ message: ERROS.UNKNOWN }) }
   }
 }
