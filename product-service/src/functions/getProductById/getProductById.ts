@@ -1,32 +1,35 @@
 import 'source-map-support/register';
+import * as yup from 'yup';
 import type { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 
 import { COMMON_HEADERS } from '@functions/constants';
-import products from '@functions/products.mock.json';
+import { ProductsProvider } from '@providers/products';
 
 import { ERROS } from './errorMsgs';
 
 export const getProductById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const { productId = '' } = event.pathParameters;
-    const productIdStringed = productId?.toString();
 
-    if (!productIdStringed) {
+    const isValidId = await yup.string().uuid().isValid(productId);
+
+    if (!isValidId) {
       return { statusCode: 400, body: JSON.stringify({ message: ERROS.INVALID_ID }) };
     }
 
-    const product = products.find((product) => product.id === productIdStringed);
+    const productsProvider = new ProductsProvider();
 
-    if (!product) {
+    const products = await productsProvider.getById(productId);
+
+    if (!products.length) {
       return { statusCode: 404, body: JSON.stringify({ message: ERROS.PRODUCT_NOT_FOUNDED }) };
     }
-
 
     return {
       statusCode: 200,
       headers: { ...COMMON_HEADERS },
       body: JSON.stringify({
-        items: [product],
+        items: products,
       }),
     };
   } catch (e) {

@@ -5,6 +5,7 @@ import { getProductsHandler, getProductByIdHandler } from '@functions';
 const serverlessConfiguration: AWS = {
   service: 'product-service',
   frameworkVersion: '2',
+  useDotenv: true,
   custom: {
     webpack: {
       webpackConfig: './webpack.config.js',
