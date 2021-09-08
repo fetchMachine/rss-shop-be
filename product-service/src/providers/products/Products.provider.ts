@@ -1,9 +1,9 @@
-import { Client } from 'pg';
+import { Pool } from 'pg';
 
 import type { Product, NewProduct } from './Product.type';
 
 export class ProductsProvider {
-  private client: Client;
+  private pool: Pool;
 
   constructor (config: {
     host?: string,
@@ -12,7 +12,7 @@ export class ProductsProvider {
     user?: string,
     password?: string,
   } = {}) {
-    this.client = new Client({
+    this.pool = new Pool({
       host: process.env.DB_HOST,
       port: parseInt(process.env.DB_PORT, 10),
       database: process.env.DB_DATABASE,
@@ -25,53 +25,54 @@ export class ProductsProvider {
   }
 
   private async makeQuery<T>(query: string, params?: (string | number)[]): Promise<T[]> {
-    try {
-      await this.client.connect();
+    const client = await this.pool.connect();
 
-      const { rows } = await this.client.query<T>(query, params);
+    try {
+      const { rows } = await client.query<T>(query, params);
 
       return rows;
     } finally {
-      await this.client.end();
+      await client.release();
     }
   }
 
   public async getAll (): Promise<Product[]> {
-    const query = 'SELECT * FROM products p LEFT JOIN stocks s ON p.id = s.product_id';
+    const query = 'SELECT id, title, description, price, count FROM products p LEFT JOIN stocks s ON p.id = s.product_id';
 
     return this.makeQuery(query);
   }
 
   public async getById (id: string): Promise<Product[]> {
-    const query = 'SELECT * FROM products p LEFT JOIN stocks s ON p.id = s.product_id where p.id = $1';
+    const query = 'SELECT id, title, description, price, count FROM products p LEFT JOIN stocks s ON p.id = s.product_id where p.id = $1';
 
     return this.makeQuery(query, [id]);
   }
 
-  public async addProduct (productToCreate: NewProduct): Promise<{ id: string }> {
-    await this.client.connect();
+  public async addProduct (productToCreate: NewProduct): Promise<Product[]> {
+    const client = await this.pool.connect();
+
     try {
       const { description, price, title, count } = productToCreate;
 
-      await this.client.query('BEGIN');
+      await client.query('BEGIN');
 
       const queryProduct = 'INSERT INTO products (title, description, price) VALUES ($1, $2, $3) RETURNING id';
-      const { rows } = await this.client.query<Product>(queryProduct, [title, description, price]);
+      const { rows } = await client.query<Product>(queryProduct, [title, description, price]);
 
       const { id } = rows[0];
 
       const queryStock = 'INSERT INTO stocks (product_id, count) VALUES ($1, $2)';
 
-      await this.client.query(queryStock, [id, count]);
+      await client.query(queryStock, [id, count]);
 
-      await this.client.query('COMMIT');
+      await client.query('COMMIT');
 
-      return rows[0];
+      return this.getById(id);
     } catch (e) {
-      await this.client.query('ROLLBACK');
+      await client.query('ROLLBACK');
       throw e
     } finally {
-      await this.client.end();
+      await client.release();
     }
   }
 }

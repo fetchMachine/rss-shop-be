@@ -5,5 +5,5 @@ export const logLambdaParams = (name: string, event: APIGatewayProxyEvent): void
 }
 
 export const logLambdaError = (name, error: Error): void => {
-  console.log(`LAMBDA FAILED: ${name} WITH ERROR: ${JSON.stringify(error)}`);
+  console.log(`LAMBDA FAILED: ${name} WITH ERROR: ${error}`);
 }

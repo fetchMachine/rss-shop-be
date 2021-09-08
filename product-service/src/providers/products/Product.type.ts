@@ -3,6 +3,7 @@ export interface Product {
   title: string;
   description: string;
   price: number;
+  count: number
 }
 
-export type NewProduct = Omit<Product, 'id'> & { count: number };
+export type NewProduct = Omit<Product, 'id'>;

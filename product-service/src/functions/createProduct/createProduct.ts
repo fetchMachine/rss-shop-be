@@ -27,9 +27,7 @@ export const createProduct = async (event: APIGatewayProxyEvent): Promise<APIGat
 
     const productsProvider = new ProductsProvider();
 
-    const { id } = await productsProvider.addProduct(product);
-
-    const products = await productsProvider.getById(id);
+    const products = await productsProvider.addProduct(product);
 
     return {
       statusCode: STATUS_CODES.OK,
