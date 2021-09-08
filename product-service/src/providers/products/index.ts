@@ -1,2 +1,2 @@
 export { ProductsProvider } from './Products.provider';
-export type { Product } from './Product.type';
+export type { Product, NewProduct } from './Product.type';

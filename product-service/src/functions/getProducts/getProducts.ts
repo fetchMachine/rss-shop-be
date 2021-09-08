@@ -3,7 +3,7 @@ import type { APIGatewayProxyResult } from 'aws-lambda';
 
 import { ProductsProvider } from '@providers/products';
 
-import { COMMON_HEADERS } from '@functions/constants';
+import { COMMON_HEADERS, ERROS, STATUS_CODES } from '@functions/constants';
 
 export const getProducts = async (): Promise<APIGatewayProxyResult> => {
   try {
@@ -12,7 +12,7 @@ export const getProducts = async (): Promise<APIGatewayProxyResult> => {
     const products = await productsProvider.getAll();
 
     return {
-      statusCode: 200,
+      statusCode: STATUS_CODES.OK,
       headers: { ...COMMON_HEADERS },
       body: JSON.stringify({
         items: products,
@@ -20,6 +20,6 @@ export const getProducts = async (): Promise<APIGatewayProxyResult> => {
     };
   } catch(e) {
     console.log(e);
-    return { statusCode: 500, body: JSON.stringify({ message: 'something go wrong' }) }
+    return { statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR, body: JSON.stringify({ message: ERROS.UNKNOWN }) }
   }
 }
