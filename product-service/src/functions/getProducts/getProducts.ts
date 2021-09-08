@@ -1,12 +1,14 @@
 import 'source-map-support/register';
-import type { APIGatewayProxyResult } from 'aws-lambda';
+import type { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 
+import { logLambdaParams } from '@libs/logLambdaParams';
 import { ProductsProvider } from '@providers/products';
-
 import { COMMON_HEADERS, ERROS, STATUS_CODES } from '@functions/constants';
 
-export const getProducts = async (): Promise<APIGatewayProxyResult> => {
+export const getProducts = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
+    logLambdaParams('getProducts', event);
+
     const productsProvider = new ProductsProvider();
 
     const products = await productsProvider.getAll();

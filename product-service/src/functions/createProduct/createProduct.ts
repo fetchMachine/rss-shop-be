@@ -2,8 +2,8 @@ import 'source-map-support/register';
 import type { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 import * as yup from 'yup';
 
+import { logLambdaParams } from '@libs/logLambdaParams';
 import { ProductsProvider, NewProduct } from '@providers/products';
-
 import { COMMON_HEADERS, ERROS, STATUS_CODES } from '@functions/constants';
 
 const productSchema: yup.SchemaOf<NewProduct> = yup.object().shape({
@@ -14,6 +14,8 @@ const productSchema: yup.SchemaOf<NewProduct> = yup.object().shape({
 
 export const createProduct = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
+    logLambdaParams('createProduct', event);
+
     const product: NewProduct = JSON.parse(event.body);
 
     const isProductValid = await productSchema.isValid(product);

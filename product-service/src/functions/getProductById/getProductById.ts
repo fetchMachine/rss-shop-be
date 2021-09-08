@@ -2,11 +2,14 @@ import 'source-map-support/register';
 import * as yup from 'yup';
 import type { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 
+import { logLambdaParams } from '@libs/logLambdaParams';
 import { COMMON_HEADERS, ERROS, STATUS_CODES } from '@functions/constants';
 import { ProductsProvider } from '@providers/products';
 
 export const getProductById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
+    logLambdaParams('getProductById', event);
+
     const { productId = '' } = event.pathParameters;
 
     const isValidId = await yup.string().uuid().isValid(productId);
