@@ -1,17 +1,18 @@
 import type { AWS } from '@serverless/typescript';
 
-import { getProductsHandler, getProductByIdHandler } from '@functions';
+import { getProductsHandler, getProductByIdHandler, postProductsHandler } from '@functions';
 
 const serverlessConfiguration: AWS = {
   service: 'product-service',
   frameworkVersion: '2',
+  useDotenv: true,
   custom: {
     webpack: {
       webpackConfig: './webpack.config.js',
       includeModules: true,
     },
   },
-  plugins: ['serverless-webpack'],
+  plugins: ['serverless-webpack', 'serverless-dotenv-plugin'],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
@@ -29,6 +30,7 @@ const serverlessConfiguration: AWS = {
   functions: {
     getProductsHandler,
     getProductByIdHandler,
+    postProductsHandler,
   },
 };
 

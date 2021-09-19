@@ -1,0 +1,1 @@
+export { postProductsHandler } from './handler';

@@ -26,6 +26,26 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/ProductResponse'
+    post:
+      tags:
+      - products
+      summary: Add new product
+      operationId: createProduct
+      parameters:
+        - in: body
+          name: product
+          description: The product to create.
+          schema:
+            $ref: '#/definitions/NewProduct'
+      # produces:
+      # - application/json
+      # - application/xml
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ProductResponse'
+
   /products/{productId}:
     get:
       tags:
@@ -52,11 +72,9 @@ paths:
         404:
           description: Product not found
 definitions:
-  Product:
+  NewProduct:
     type: object
     properties:
-      id:
-        type: string
       title:
         type: string
       description:
@@ -64,10 +82,17 @@ definitions:
       price:
         type: number
         format: double
-      img:
-        type: string
-    xml:
-      name: Order
+      count:
+        type: number
+        format: double
+  Product:
+    allOf:
+      - $ref: '#/definitions/NewProduct'
+      - type: object
+        properties:
+          id:
+            type: string
+            format: uuid
   ProductResponse:
     type: object
     properties:

@@ -1,21 +1,27 @@
 import 'source-map-support/register';
-import type { APIGatewayProxyResult } from 'aws-lambda';
+import type { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 
-import { COMMON_HEADERS } from '@functions/constants';
+import { logLambdaParams, logLambdaError } from '@libs/loggers';
+import { ProductsProvider } from '@providers/products';
+import { COMMON_HEADERS, ERROS, STATUS_CODES } from '@functions/constants';
 
-import products from '@functions/products.mock.json';
-
-export const getProducts = async (): Promise<APIGatewayProxyResult> => {
+export const getProducts = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
+    logLambdaParams('getProducts', event);
+
+    const productsProvider = new ProductsProvider();
+
+    const products = await productsProvider.getAll();
+
     return {
-      statusCode: 200,
+      statusCode: STATUS_CODES.OK,
       headers: { ...COMMON_HEADERS },
       body: JSON.stringify({
         items: products,
       }),
     };
   } catch(e) {
-    console.log(e);
-    return { statusCode: 500, body: JSON.stringify({ message: 'something go wrong' }) }
+    logLambdaError('getProducts', e);
+    return { statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR, body: JSON.stringify({ message: ERROS.UNKNOWN }) }
   }
 }

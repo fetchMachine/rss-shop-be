@@ -1,36 +1,40 @@
 import 'source-map-support/register';
+import * as yup from 'yup';
 import type { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 
-import { COMMON_HEADERS } from '@functions/constants';
-import products from '@functions/products.mock.json';
-
-import { ERROS } from './errorMsgs';
+import { logLambdaParams, logLambdaError } from '@libs/loggers';
+import { COMMON_HEADERS, ERROS, STATUS_CODES } from '@functions/constants';
+import { ProductsProvider } from '@providers/products';
 
 export const getProductById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
+    logLambdaParams('getProductById', event);
+
     const { productId = '' } = event.pathParameters;
-    const productIdStringed = productId?.toString();
 
-    if (!productIdStringed) {
-      return { statusCode: 400, body: JSON.stringify({ message: ERROS.INVALID_ID }) };
+    const isValidId = await yup.string().uuid().isValid(productId);
+
+    if (!isValidId) {
+      return { statusCode: STATUS_CODES.BAD_REQUEST, body: JSON.stringify({ message: ERROS.INVALID_ID }) };
     }
 
-    const product = products.find((product) => product.id === productIdStringed);
+    const productsProvider = new ProductsProvider();
 
-    if (!product) {
-      return { statusCode: 404, body: JSON.stringify({ message: ERROS.PRODUCT_NOT_FOUNDED }) };
+    const products = await productsProvider.getById(productId);
+
+    if (!products.length) {
+      return { statusCode: STATUS_CODES.NOT_FOUND, body: JSON.stringify({ message: ERROS.PRODUCT_NOT_FOUNDED }) };
     }
-
 
     return {
-      statusCode: 200,
+      statusCode: STATUS_CODES.OK,
       headers: { ...COMMON_HEADERS },
       body: JSON.stringify({
-        items: [product],
+        items: products,
       }),
     };
   } catch (e) {
-    console.log(e);
-    return { statusCode: 500, body: JSON.stringify({ message: 'something go wrong' }) }
+    logLambdaError('getProductById', e);
+    return { statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR, body: JSON.stringify({ message: ERROS.UNKNOWN }) }
   }
 }
