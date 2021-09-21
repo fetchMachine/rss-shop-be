@@ -2,8 +2,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@functions": ["src/functions"],
       "@functions/*": ["src/functions/*"],
-      "@libs/*": ["src/libs/*"]
+      "@libs/*": ["src/libs/*"],
+      "@providers/*": ["src/providers/*"],
+      "@shared/*": ["../shared/*"]
     }
   }
 }

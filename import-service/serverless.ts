@@ -1,6 +1,8 @@
 import type { AWS } from '@serverless/typescript';
 
-import hello from '@functions/hello';
+import { importProductsFile } from '@functions';
+
+const S3_BUCKET_ARN = 'arn:aws:s3:::rss-shop-serverless-bucket';
 
 const serverlessConfiguration: AWS = {
   service: 'import-service',
@@ -20,13 +22,16 @@ const serverlessConfiguration: AWS = {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
     },
+    iamRoleStatements: [
+      { Effect: 'Allow', Action: 's3:ListBucket', Resource: [S3_BUCKET_ARN] },
+      { Effect: 'Allow', Action: 's3:*', Resource: [`${S3_BUCKET_ARN}/*`] },
+    ],
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
     },
     lambdaHashingVersion: '20201221',
   },
-  // import the function via paths
-  functions: { hello },
+  functions: { importProductsFile },
 };
 
 module.exports = serverlessConfiguration;
