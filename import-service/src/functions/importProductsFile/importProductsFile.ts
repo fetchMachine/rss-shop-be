@@ -4,10 +4,7 @@ import { S3 } from 'aws-sdk';
 
 import { logLambdaParams, logLambdaError } from '@libs/loggers';
 import { COMMON_HEADERS, COMMON_ERROS, STATUS_CODES } from '@shared/constants';
-
-import { IMPORT_ERRORS } from '@functions/constants';
-
-const UPLOAD_BUCKET_ARN = 'rss-products-csv-uploaded';
+import { IMPORT_ERRORS, UPLOAD_BUCKET_NAME, UPLOADED_PATH_PREFIX } from '@functions/constants';
 
 export const importProductsFile = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -22,10 +19,10 @@ export const importProductsFile = async (event: APIGatewayProxyEvent): Promise<A
     }
 
     const singedUrl = await s3.getSignedUrlPromise('putObject', {
-      Bucket: UPLOAD_BUCKET_ARN,
+      Bucket: UPLOAD_BUCKET_NAME,
       Expires: 60,
       ContentType: 'text/csv',
-      Key: `uploaded/${name}`,
+      Key: `${UPLOADED_PATH_PREFIX}/${name}`,
     });
 
     return {

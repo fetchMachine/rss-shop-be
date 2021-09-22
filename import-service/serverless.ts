@@ -1,6 +1,6 @@
 import type { AWS } from '@serverless/typescript';
 
-import { importProductsFile } from '@functions';
+import { importProductsFile, importFileParser } from '@functions';
 
 const S3_BUCKET_ARN = 'arn:aws:s3:::rss-shop-serverless-bucket';
 
@@ -31,7 +31,7 @@ const serverlessConfiguration: AWS = {
     },
     lambdaHashingVersion: '20201221',
   },
-  functions: { importProductsFile },
+  functions: { importProductsFile, importFileParser },
 };
 
 module.exports = serverlessConfiguration;
