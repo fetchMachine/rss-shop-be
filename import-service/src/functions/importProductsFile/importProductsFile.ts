@@ -15,7 +15,7 @@ export const importProductsFile = async (event: APIGatewayProxyEvent): Promise<A
     const { name } = event.queryStringParameters;
 
     if (!name) {
-      return { statusCode: STATUS_CODES.BAD_REQUEST, body: JSON.stringify({ message: IMPORT_ERRORS.INVALID_FILE_NAME }) }
+      return { statusCode: STATUS_CODES.BAD_REQUEST, body: JSON.stringify({ message: IMPORT_ERRORS.INVALID_FILE_NAME }) };
     }
 
     const singedUrl = await s3.getSignedUrlPromise('putObject', {
@@ -30,11 +30,10 @@ export const importProductsFile = async (event: APIGatewayProxyEvent): Promise<A
       headers: { ...COMMON_HEADERS },
       body: JSON.stringify({
         url: singedUrl,
-        name,
       }),
     };
   } catch(e) {
     logLambdaError('importProductsFile', e);
-    return { statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR, body: JSON.stringify({ message: COMMON_ERROS.UNKNOWN }) }
+    return { statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR, body: JSON.stringify({ message: COMMON_ERROS.UNKNOWN }) };
   }
 }
