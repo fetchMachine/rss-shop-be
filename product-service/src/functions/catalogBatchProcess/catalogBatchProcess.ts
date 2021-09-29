@@ -1,3 +1,5 @@
+import { logLambdaParams } from '@libs/loggers';
+
 export const catalogBatchProcess = (e) => {
-  console.log(e);
+  logLambdaParams('catalogBatchProcess', e);
 };

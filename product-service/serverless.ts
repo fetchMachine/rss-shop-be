@@ -7,6 +7,8 @@ import {
   catalogBatchProcessHandler,
 } from '@functions';
 
+const QueueName = 'catalogItemsQueue';
+
 const serverlessConfiguration: AWS = {
   service: 'product-service',
   frameworkVersion: '2',
@@ -18,6 +20,9 @@ const serverlessConfiguration: AWS = {
     },
   },
   plugins: ['serverless-webpack', 'serverless-dotenv-plugin'],
+
+  resources: { Resources: { SQSQueue: { Type: 'AWS::SQS::Queue', Properties: { QueueName } } } },
+
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
@@ -28,9 +33,14 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      SQS_URL: 'Ref: SQSQueue'
     },
     lambdaHashingVersion: '20201221',
+    iamRoleStatements: [
+      { Effect: 'Allow', Action: 'sqs:*', Resource: { 'Fn::GetAtt': ['SQSQueue', 'Arn'] } },
+    ],
   },
+
   functions: {
     getProductsHandler,
     getProductByIdHandler,

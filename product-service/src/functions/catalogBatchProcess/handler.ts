@@ -4,10 +4,10 @@ export const catalogBatchProcessHandler  = {
   handler: `${handlerPath(__dirname)}/catalogBatchProcess.catalogBatchProcess`,
   events: [
     {
-      http: {
-        method: 'post',
-        path: 'products',
-      }
+      sqs: {
+        batchSize: 5,
+        arn: { 'Fn::GetAtt': ['SQSQueue', 'Arn'] },
+      },
     }
   ]
 };
