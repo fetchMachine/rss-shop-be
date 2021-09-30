@@ -1,10 +1,11 @@
 import { SNS } from 'aws-sdk';
-import { SQSEvent } from 'aws-lambda';
+import type { SQSEvent } from 'aws-lambda';
 
 import { logLambdaParams, logLambdaError } from '@shared/loggers';
 import { DEFAULT_REGION } from '@shared/constants';
 
-import { ProductsProvider, NewProduct } from '@providers/products';
+import { ProductsProvider } from '@providers/products';
+import type { NewProduct } from '@providers/products';
 
 export const catalogBatchProcess = async (event: SQSEvent) => {
   try {
@@ -13,10 +14,9 @@ export const catalogBatchProcess = async (event: SQSEvent) => {
     const sns = new SNS({ region: DEFAULT_REGION });
     const productsProvider = new ProductsProvider();
 
-    // const product: NewProduct = JSON.parse(event.body);
-
     event.Records.forEach(async (record) => {
       const { body } = record;
+
       const product: NewProduct = JSON.parse(body);
 
       await productsProvider.addProduct(product);
