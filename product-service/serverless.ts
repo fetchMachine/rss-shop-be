@@ -8,7 +8,7 @@ import {
 } from '@functions';
 
 const QueueName = 'catalogItemsQueue';
-const TopicName = 'productsAddedTopic';
+const TopicName = 'createProductTopic';
 
 const serverlessConfiguration: AWS = {
   service: 'product-service',
