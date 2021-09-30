@@ -25,12 +25,15 @@ const serverlessConfiguration: AWS = {
     iamRoleStatements: [
       { Effect: 'Allow', Action: 's3:ListBucket', Resource: [S3_BUCKET_ARN] },
       { Effect: 'Allow', Action: 's3:*', Resource: [`${S3_BUCKET_ARN}/*`] },
+      { Effect: 'Allow', Action: 'sqs:SendMessage', Resource: 'arn:aws:sqs:eu-west-1:039595892168:catalogItemsQueue' },
     ],
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      SQS_URL: 'https://sqs.eu-west-1.amazonaws.com/039595892168/catalogItemsQueue',
     },
     lambdaHashingVersion: '20201221',
   },
+
   functions: { importProductsFile, importFileParser },
 };
 
