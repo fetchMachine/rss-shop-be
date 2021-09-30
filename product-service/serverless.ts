@@ -33,6 +33,15 @@ const serverlessConfiguration: AWS = {
           TopicArn: { Ref: 'SNSTopic' },
         },
     },
+    SNSSubscriptionImportant: {
+      Type: 'AWS::SNS::Subscription',
+      Properties: {
+        Endpoint: 'yuntsov89_improtant@mail.ru',
+        Protocol: 'email',
+        TopicArn: { Ref: 'SNSTopic' },
+        FilterPolicy: { price: [{ numeric: ['>', 1000] }] },
+      },
+  },
   } },
 
   provider: {
