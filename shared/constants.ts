@@ -16,3 +16,5 @@ export enum STATUS_CODES {
 
   INTERNAL_SERVER_ERROR = 500,
 }
+
+export const DEFAULT_REGION = 'eu-west-1';
