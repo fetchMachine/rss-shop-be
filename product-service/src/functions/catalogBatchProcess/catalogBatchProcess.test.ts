@@ -6,6 +6,10 @@ import { logLambdaParams, logLambdaError } from '@shared/loggers';
 
 jest.mock('@shared/loggers');
 
+jest.mock('@functions/productSchema', () => ({
+  productSchema: { isValid: jest.fn().mockResolvedValue(true) },
+}));
+
 const mockSnsPublish = jest.fn().mockImplementation(() => ({ promise: jest.fn() }));
 jest.mock('aws-sdk', () => ({
   SNS: jest.fn().mockImplementation(() => ({ publish: mockSnsPublish })),

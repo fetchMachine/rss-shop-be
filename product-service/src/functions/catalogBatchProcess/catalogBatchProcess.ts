@@ -6,6 +6,7 @@ import { DEFAULT_REGION } from '@shared/constants';
 
 import { ProductsProvider } from '@providers/products';
 import type { NewProduct } from '@providers/products';
+import { productSchema } from '@functions/productSchema';
 
 export const catalogBatchProcess = async (event: SQSEvent) => {
   try {
@@ -14,13 +15,20 @@ export const catalogBatchProcess = async (event: SQSEvent) => {
     const sns = new SNS({ region: DEFAULT_REGION });
     const productsProvider = new ProductsProvider();
 
-    event.Records.forEach(async (record) => {
+    for (const record of event.Records) {
       const { body } = record;
 
       const product: NewProduct = JSON.parse(body);
 
+      const isValidProduct = await productSchema.isValid(product);
+
+      if (!isValidProduct) {
+        console.log(`catalogBatchProcess: invalid product. ${JSON.stringify(product)}`);
+        return;
+      }
+
       await productsProvider.addProduct(product);
-    });
+    }
 
     await sns.publish({
       Subject: 'В Базу добавлены новые продукты',
