@@ -1,18 +1,19 @@
 import 'source-map-support/register';
 import type { S3Event } from 'aws-lambda';
-import { S3 } from 'aws-sdk';
+import { S3, SQS } from 'aws-sdk';
 // @ts-ignore
 import csv from 'csv-parser';
 
 import { logLambdaParams, logLambdaError } from '@libs/loggers';
-import { COMMON_ERROS, STATUS_CODES } from '@shared/constants';
+import { COMMON_ERROS, STATUS_CODES, DEFAULT_REGION } from '@shared/constants';
 import { UPLOAD_BUCKET_NAME, UPLOADED_PATH_PREFIX, PROCESSED_PATH_PREFIX } from '@functions/constants';
 
 export const importFileParser = async (event: S3Event): Promise<any> => {
   try {
     logLambdaParams('importFileParser', event);
 
-    const s3 = new S3({ region: 'eu-west-1' });
+    const s3 = new S3({ region: DEFAULT_REGION });
+    const sns = new SQS({ region: DEFAULT_REGION });
 
     return new Promise((res, rej) => {
       for (const record of event.Records) {
@@ -23,6 +24,12 @@ export const importFileParser = async (event: S3Event): Promise<any> => {
 
         s3ReadStream.pipe(csv())
           .on('data', (data) => {
+
+            sns.sendMessage({
+              QueueUrl: process.env.SQS_URL,
+              MessageBody: JSON.stringify(data)
+            }).send();
+
             console.log(`importFileParser parse record: ${JSON.stringify(data)}`);
           })
           .on('end', async () => {
