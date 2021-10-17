@@ -9,6 +9,14 @@ export const importProductsFile: AWS['functions'][keyof AWS['functions']] = {
         method: 'get',
         path: '/import',
         request: { parameters: { querystrings: { name: true } } },
+        cors: true,
+        authorizer: {
+          name: 'basicAuthorizerHandler',
+          arn: 'arn:aws:lambda:eu-west-1:039595892168:function:authorization-service-dev-basicAuthorizerHandler',
+          resultTtlInSeconds: 0,
+          identitySource: 'method.request.header.Authorization',
+          type: 'token',
+        },
       }
     }
   ]

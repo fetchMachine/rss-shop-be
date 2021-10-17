@@ -1,19 +1,22 @@
 import type { AWS } from '@serverless/typescript';
 
-import hello from '@functions/hello';
+import { basicAuthorizerHandler } from '@functions';
+import { DEFAULT_REGION } from '@shared/constants';
 
 const serverlessConfiguration: AWS = {
   service: 'authorization-service',
   frameworkVersion: '2',
+  useDotenv: true,
   custom: {
     webpack: {
       webpackConfig: './webpack.config.js',
       includeModules: true,
     },
   },
-  plugins: ['serverless-webpack'],
+  plugins: ['serverless-webpack', 'serverless-dotenv-plugin'],
   provider: {
     name: 'aws',
+    region: DEFAULT_REGION,
     runtime: 'nodejs14.x',
     apiGateway: {
       minimumCompressionSize: 1024,
@@ -24,8 +27,7 @@ const serverlessConfiguration: AWS = {
     },
     lambdaHashingVersion: '20201221',
   },
-  // import the function via paths
-  functions: { hello },
+  functions: { basicAuthorizerHandler },
 };
 
 module.exports = serverlessConfiguration;
