@@ -12,7 +12,7 @@ export const importProductsFile: AWS['functions'][keyof AWS['functions']] = {
         cors: true,
         authorizer: {
           name: 'basicAuthorizerHandler',
-          arn: 'arn:aws:lambda:eu-west-1:039595892168:function:authorization-service-dev-basicAuthorizerHandler',
+          arn: '${cf:authorization-service-${self:provider.stage}.authorizationArn}',
           resultTtlInSeconds: 0,
           identitySource: 'method.request.header.Authorization',
           type: 'token',

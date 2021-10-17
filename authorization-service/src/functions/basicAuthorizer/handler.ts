@@ -10,5 +10,5 @@ export const basicAuthorizerHandler: AWS['functions'][keyof AWS['functions']] = 
         path: '/token',
       }
     }
-  ]
+  ],
 }
