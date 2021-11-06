@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { map } from 'rxjs';
+import { map, catchError } from 'rxjs';
 
 @Injectable()
 export class ProxyService {
@@ -28,6 +28,11 @@ export class ProxyService {
         ...(Object.keys(data).length && { data }),
         ...(Object.keys(params).length && { params }),
       })
-      .pipe(map((resp) => resp.data));
+      .pipe(
+        catchError(e => {
+          throw new HttpException(e.response.data, e.response.status);
+        }),
+        map((resp) => resp.data),
+      );
   }
 }

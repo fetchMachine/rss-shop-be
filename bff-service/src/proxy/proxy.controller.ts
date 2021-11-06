@@ -1,5 +1,11 @@
-import { Controller, Req, Param, All } from '@nestjs/common';
-import { map } from 'rxjs';
+import {
+  Controller,
+  Req,
+  Param,
+  All,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Request } from 'express';
 
 import { ProxyService } from './proxy.service';
@@ -19,12 +25,17 @@ export class ProxyController {
     const { 0: urlToProxy } = pathParams;
 
     try {
-      return this.proxyService.proxyToSerive(service, urlToProxy, method, {
-        data,
-        params,
-      });
+      return await this.proxyService.proxyToSerive(
+        service,
+        urlToProxy,
+        method,
+        {
+          data,
+          params,
+        },
+      );
     } catch {
-      return 502;
+      throw new HttpException('Cannot process request', HttpStatus.BAD_GATEWAY);
     }
   }
 }
