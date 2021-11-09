@@ -71,7 +71,7 @@ export class ProxyService {
     method: string,
     { data, params }: { data?: object; params?: object } = {},
   ): Promise<unknown> {
-    if (!(serviceName in process.env)) {
+    if (!serviceName || !(serviceName in process.env)) {
       throw new Error('unexpected serviceName');
     }
 
